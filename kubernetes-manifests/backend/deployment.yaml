@@ -25,8 +25,8 @@ spec:
       - name: ecr-registry-secret
       containers:
       - name: api
-        image: 167365792572.dkr.ecr.us-west-2.amazonaws.com/backend:1
-        imagePullPolicy: Always
+      image: 600558611820.dkr.ecr.us-west-2.amazonaws.com/backend:1
+      imagePullPolicy: Always
         env:
           - name: POSTGRES_CONN_STR
             value: postgresql://$(POSTGRES_USERNAME):$(POSTGRES_PASSWORD)@postgres-svc:5432/mydatabase
