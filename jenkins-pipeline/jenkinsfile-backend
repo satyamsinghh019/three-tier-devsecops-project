@@ -29,9 +29,7 @@ pipeline {
                         sh ''' 
                             $SCANNER_HOME/bin/sonar-scanner \
                             -Dsonar.projectKey=backend \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=REPLACE_WITH_YOUR_SONARQUBE_URL \
-                            -Dsonar.login=REPLACE_WITH_YOUR_SONAR_TOKEN
+                            -Dsonar.sources=.
                         '''
                     }
                 }
