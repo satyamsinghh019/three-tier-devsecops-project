@@ -44,9 +44,11 @@ pipeline {
         }
         stage('OWASP Dependency-Check Scan') {
             steps {
-                dir('app-code/frontend/notes-frontend') {
-                    dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --data /var/lib/jenkins/dependency-check-data", odcInstallation: 'DP-Check'
-                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml', failedTotalCritical: 0, unstableTotalHigh: 1
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                    dir('app-code/frontend/notes-frontend') {
+                        dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD_API_KEY} --data /var/lib/jenkins/dependency-check-data", odcInstallation: 'DP-Check'
+                        dependencyCheckPublisher pattern: '**/dependency-check-report.xml', failedTotalCritical: 0, unstableTotalHigh: 1
+                    }
                 }
             }
         }
@@ -94,7 +96,7 @@ pipeline {
             }
             steps {
                 dir('kubernetes-manifests/frontend') {
-                    withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                    withCredentials([usernamePassword(credentialsId: 'github-pat', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         // First, list the files in the directory to check if deployment.yaml exists
                         sh '''
                             echo "Listing files in kubernetes-manifests/frontend directory:"
@@ -110,7 +112,7 @@ pipeline {
                             sed -i "s/${AWS_ECR_REPO_NAME}:${imageTag}/${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}/" deployment.yaml
                             git add deployment.yaml
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                         '''
                     }
                 }
